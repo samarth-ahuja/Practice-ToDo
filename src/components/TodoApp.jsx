@@ -1,27 +1,31 @@
 import TodoList from './TodoList.jsx';
 import TodoInput from './TodoInput';
 import Heading from './Heading.jsx';
-import {useReducer} from 'react';
+import { useState,useEffect, useReducer,useRef } from 'react';
+import Log from './Log.jsx';
 
-function taskListReducer(state,action){
-    if(action.type==="ADD_TASK"){
+function taskListReducer(state, action) {
+    if (action.type === "ADD_TASK") {
         let newTask = {
-            title:action.payload.text,
-            id:Math.floor(Math.random()*10000),
-            completed:false
+            title: action.payload.text,
+            id: Math.floor(Math.random() * 10000),
+            completed: false
         };
-        return [...state,newTask];
+        action.setLogs(prev=>[...prev,{id:Math.floor(Math.random()*1000000),log:'Added a task with ' + newTask.id}]);
+        return [...state, newTask];
     }
-    if(action.type==='REMOVE_TASK'){
-        return state.filter(listItem=>listItem.id!=action.payload.item.id)
+    if (action.type === 'REMOVE_TASK') {
+        action.setLogs(prev=>[...prev,{id:Math.floor(Math.random()*1000000),log:'Deleted a task with ' + action.payload.item.id}]);
+        return state.filter(listItem => listItem.id != action.payload.item.id)
     }
-    if(action.type==='STATE_CHANGE'){
-        let newList=[];
-        for(let x of state){
-            if(x.id===action.payload.item.id){
-                newList.push({...x,completed:!x.completed})
+    if (action.type === 'STATE_CHANGE') {
+        let newList = [];
+        for (let x of state) {
+            if (x.id === action.payload.item.id) {
+                action.setLogs(prev=>[...prev,{id:Math.floor(Math.random()*1000000),log:'Task with id ' + x.id + ' is ' + (!x.completed ? 'completed.' : 'pending')}]);
+                newList.push({ ...x, completed: !x.completed })
             }
-            else{
+            else {
                 newList.push(x);
             }
         }
@@ -29,39 +33,47 @@ function taskListReducer(state,action){
     }
 }
 
-export default function TodoApp(){
-    const [taskList,taskListDispatcher] = useReducer(taskListReducer,[]);
-    function newTaskHandler(text){
+let logStatements = [];
+export default function TodoApp() {
+    const [taskList, taskListDispatcher] = useReducer(taskListReducer, []);
+    const [logState,setLogState] = useState([]);
+    function newTaskHandler(text) {
         taskListDispatcher({
-            type:'ADD_TASK',
-            payload:{
-                text:text,
-            }
+            type: 'ADD_TASK',
+            payload: {
+                text: text,
+            },
+            setLogs:setLogState
         })
     }
-    function deleteHandler(item){
+    function deleteHandler(item) {
         taskListDispatcher({
-            type:'REMOVE_TASK',
-            payload:{
-                item:item,
-            }
+            type: 'REMOVE_TASK',
+            payload: {
+                item: item,
+            },
+            setLogs:setLogState
         })
     }
-    function stateChangeHandler(item){
+    function stateChangeHandler(item) {
         taskListDispatcher({
-            type:'STATE_CHANGE',
-            payload:{
-                item:item,
-            }
+            type: 'STATE_CHANGE',
+            payload: {
+                item: item,
+            },
+            setLogs:setLogState
         })
     }
     return (
-        <div className='flex'>
-            <div className='basis-3/4 p-5 text-stone-300'>
-                <Heading>To Do List</Heading>
-                <TodoList taskList={taskList} deleteHandler={deleteHandler} stateChangeHandler={stateChangeHandler}/>
+        <div className="flex flex-col">
+            <div className='flex bg-stone-800'>
+                <div className='basis-3/4 p-5 text-stone-300'>
+                    <Heading>To Do List</Heading>
+                    <TodoList taskList={taskList} deleteHandler={deleteHandler} stateChangeHandler={stateChangeHandler} />
+                </div>
+                <TodoInput clickHandler={newTaskHandler}></TodoInput>
             </div>
-            <TodoInput clickHandler={newTaskHandler}></TodoInput>                
+            <Log logs={logState}></Log>
         </div>
     );
 }
