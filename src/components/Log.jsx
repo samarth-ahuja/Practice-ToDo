@@ -1,5 +1,10 @@
-import Heading from "./Heading"
-export default function Log({logs}){
+import { useContext } from "react";
+import Heading from "./Heading";
+import TasksContext from './TasksContext.jsx';
+
+export default function Log(){
+    const context = useContext(TasksContext);
+    const logs = context.logState;
     return (
         <div className="p-5 container w-full my-5 rounded-lg bg-stone-800 text-stone-300 space-y-3">
             <Heading> Logs </Heading>
