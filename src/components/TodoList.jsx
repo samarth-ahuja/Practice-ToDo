@@ -1,15 +1,15 @@
 import Task from './Task.jsx';
 import SubHeading from './SubHeading.jsx';
 import {useContext} from 'react';
-import TasksContext from './TasksContext.jsx';
+import {TasksContext} from './TasksContext.jsx';
 
 export default function TodoList() {
-    const context = useContext(TasksContext);
-    const taskList = context.taskList;
-    const deleteHandler = context.deleteHandler;
-    const stateChangeHandler = context.stateChangeHandler;
-    const currentTasks = taskList.filter(item => item.completed === false);
-    const completedTasks = taskList.filter(item => item.completed === true);
+    const {taskList,deleteHandler,stateChangeHandler} = useContext(TasksContext);
+    // const taskList = context.ctxValue.taskList;
+    // const deleteHandler = context.ctxValue.deleteHandler;
+    // const stateChangeHandler = context.ctxValue.stateChangeHandler;
+    const currentTasks = taskList?.filter(item => item.completed === false);
+    const completedTasks = taskList?.filter(item => item.completed === true);
     return (
         <>
             <div className='flex flex-col'>
